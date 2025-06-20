@@ -11,64 +11,31 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Apply Mitsuri Kanroji themed background
 def apply_mitsuri_theme():
-    """Apply Mitsuri Kanroji themed background and styling"""
+    """Apply Mitsuri-themed background with SVG pattern"""
     st.markdown("""
     <style>
-    /* Mitsuri Kanroji themed background */
     .stApp {
-        background: linear-gradient(135deg, 
-            #ffb3d9 0%,    /* Light pink */
-            #ff80cc 25%,   /* Medium pink */
-            #ffccf2 50%,   /* Soft pink */
-            #e6f3ff 75%,   /* Light blue */
-            #ccebff 100%   /* Pale blue */
-        );
+        background: 
+            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="cherry" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="2" fill="%23ff9ebc" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="%23ffccf2"/><rect width="100" height="100" fill="url(%23cherry)"/></svg>'),
+            linear-gradient(135deg, #ffb3d9 0%, #ff80cc 25%, #ffccf2 50%, #e6f3ff 75%, #ccebff 100%);
         background-attachment: fixed;
+        background-size: 200px 200px, cover;
     }
     
-    /* Cherry blossom pattern overlay */
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-            radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.3) 2px, transparent 2px),
-            radial-gradient(circle at 80% 80%, rgba(255, 192, 203, 0.3) 1px, transparent 1px),
-            radial-gradient(circle at 40% 60%, rgba(255, 218, 185, 0.2) 1px, transparent 1px);
-        background-size: 150px 150px, 100px 100px, 200px 200px;
-        pointer-events: none;
-        z-index: -1;
-        animation: float 20s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-20px); }
-    }
-    
-    /* Main content area */
     .main .block-container {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 15px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 182, 193, 0.3);
-        box-shadow: 0 8px 32px rgba(255, 182, 193, 0.2);
-        margin: 1rem;
         padding: 2rem;
+        box-shadow: 0 4px 20px rgba(255, 182, 193, 0.3);
+        backdrop-filter: blur(10px);
     }
     
-    /* Headers styling */
     h1, h2, h3 {
         color: #d63384 !important;
-        text-shadow: 1px 1px 2px rgba(255, 182, 193, 0.5);
+        text-shadow: 1px 1px 3px rgba(255, 182, 193, 0.5);
     }
     
-    /* Button styling */
     .stButton > button {
         background: linear-gradient(45deg, #ff6b9d, #ff8fab);
         color: white;
@@ -84,48 +51,13 @@ def apply_mitsuri_theme():
         box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
     }
     
-    /* Sidebar styling */
-    .css-1d391kg, [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, 
-            rgba(255, 179, 217, 0.9) 0%,
-            rgba(255, 204, 242, 0.9) 100%
-        );
-        backdrop-filter: blur(10px);
-    }
-    
-    /* Cards and metrics */
-    .element-container div[data-testid="stMetric"] {
-        background: rgba(255, 182, 193, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #ff6b9d;
-        padding: 1rem;
-    }
-    
-    /* Tabs styling */
-    .stTabs [data-baseweb="tab-list"] {
-        background: rgba(255, 182, 193, 0.2);
-        border-radius: 10px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        color: #d63384;
-        font-weight: bold;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(45deg, #ff6b9d, #ff8fab);
-        color: white !important;
-        border-radius: 8px;
-    }
-    
-    /* Feature cards custom styling */
     .feature-card {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.9);
         padding: 1.5rem;
         border-radius: 15px;
         border-left: 4px solid #ff6b9d;
-        box-shadow: 0 4px 15px rgba(255, 182, 193, 0.2);
         margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(255, 182, 193, 0.2);
         backdrop-filter: blur(5px);
     }
     
@@ -134,54 +66,12 @@ def apply_mitsuri_theme():
         margin-bottom: 0.5rem;
     }
     
-    .feature-card p {
-        color: #6c757d;
-        margin-bottom: 0;
-    }
-    
-    /* Text inputs and areas */
-    .stTextInput input, .stTextArea textarea {
-        background: rgba(255, 255, 255, 0.95);
-        border: 2px solid rgba(255, 182, 193, 0.3);
-        border-radius: 10px;
-    }
-    
-    /* Chat messages */
-    .stChatMessage {
-        background: rgba(255, 255, 255, 0.8);
-        border-radius: 15px;
-        border-left: 4px solid #ff6b9d;
-        margin: 0.5rem 0;
-    }
-    
-    /* Progress bars */
-    .stProgress > div > div {
-        background: linear-gradient(90deg, #ff6b9d, #ff8fab);
-    }
-    
-    /* Success/info messages */
-    .stSuccess {
-        background: rgba(144, 238, 144, 0.8);
-        border-left: 4px solid #90ee90;
-        border-radius: 10px;
-    }
-    
-    .stInfo {
-        background: rgba(173, 216, 230, 0.8);
-        border-left: 4px solid #add8e6;
-        border-radius: 10px;
-    }
-    
-    .stWarning {
-        background: rgba(255, 218, 185, 0.8);
-        border-left: 4px solid #ffdab9;
-        border-radius: 10px;
-    }
-    
-    .stError {
-        background: rgba(255, 192, 203, 0.8);
-        border-left: 4px solid #ffc0cb;
-        border-radius: 10px;
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, 
+            rgba(255, 179, 217, 0.9) 0%,
+            rgba(255, 204, 242, 0.9) 100%
+        );
+        backdrop-filter: blur(10px);
     }
     </style>
     """, unsafe_allow_html=True)
