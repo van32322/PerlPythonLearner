@@ -788,6 +788,7 @@ dependencies = [
     { name = "pandas" },
     { name = "plotly" },
     { name = "streamlit" },
+    { name = "streamlit-ace" },
 ]
 
 [package.metadata]
@@ -797,6 +798,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.0" },
     { name = "plotly", specifier = ">=6.1.2" },
     { name = "streamlit", specifier = ">=1.46.0" },
+    { name = "streamlit-ace", specifier = ">=0.1.1" },
 ]
 
 [[package]]
@@ -942,6 +944,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/72/83/f2aac961479594d1d7ee42cf485e3674992769d506732005cea91e11504a/streamlit-1.46.0.tar.gz", hash = "sha256:0b2734b48f11f1e5c8046011b6b1a2274982dc657eef2ade8db70f0e1dc53dda", size = 9651454 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/be/26/79bbb77bec3d605f7de7a4b45c806b44d112e8c9bce77fb620e03d9f2b88/streamlit-1.46.0-py3-none-any.whl", hash = "sha256:f8624acabafcf18611a0fac2635cf181a7ba922b45bd131ae15fc8f80e1a5482", size = 10050930 },
+]
+
+[[package]]
+name = "streamlit-ace"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "streamlit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2e/34/a508123af170e41852d247b17d38d9cddc2b4be3884f2f29a84aeb322992/streamlit_ace-0.1.1.tar.gz", hash = "sha256:1852fa19707685fd4241be9256c1ab1a89da4a3b8c28ab286e3bff122d3a1686", size = 2389652 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8d/c9/e862cefc5735e11c101b2bc45f37a2b767666ffe673d262004202b506f3b/streamlit_ace-0.1.1-py3-none-any.whl", hash = "sha256:cdf908a90058fa831fb720d29e2aef35a0f5799eac33e2b2e58ba9f3631b1aa5", size = 3642928 },
 ]
 
 [[package]]

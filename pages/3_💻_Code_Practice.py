@@ -206,9 +206,8 @@ def show_code_editor(language, selected_sample, sample_options, show_line_number
     if selected_sample != "Custom Code" and selected_sample in sample_options:
         initial_code = sample_options[selected_sample]
     
-    # Check if streamlit-ace is available, otherwise use text area
+    # Use streamlit-ace for better code editing experience
     try:
-        # Try to use streamlit-ace for better code editing experience
         code = st_ace(
             value=initial_code,
             language=language,
