@@ -9,6 +9,41 @@ from utils.code_executor import code_executor
 # Page configuration
 st.set_page_config(page_title="Courses", page_icon="📚", layout="wide")
 
+def get_all_lessons_ordered(modules):
+    """Get all lessons in sequential order across modules"""
+    all_lessons = []
+    for module in modules:
+        for lesson in module.get('lessons', []):
+            all_lessons.append({
+                'module': module,
+                'lesson': lesson,
+                'module_id': module['id'],
+                'lesson_id': lesson['id']
+            })
+    return all_lessons
+
+def find_lesson_index(all_lessons, target_module_id, target_lesson_id):
+    """Find the index of a specific lesson in the ordered list"""
+    for i, item in enumerate(all_lessons):
+        if item['module_id'] == target_module_id and item['lesson_id'] == target_lesson_id:
+            return i
+    return -1
+
+def get_navigation_info(all_lessons, current_module_id, current_lesson_id):
+    """Get previous and next lesson information"""
+    current_index = find_lesson_index(all_lessons, current_module_id, current_lesson_id)
+    
+    prev_lesson = None
+    next_lesson = None
+    
+    if current_index > 0:
+        prev_lesson = all_lessons[current_index - 1]
+    
+    if current_index < len(all_lessons) - 1:
+        next_lesson = all_lessons[current_index + 1]
+    
+    return prev_lesson, next_lesson
+
 def main():
     if not check_authentication():
         st.error("Please log in to access courses.")
@@ -55,30 +90,78 @@ def show_course_content(course_id):
         st.warning("No modules available for this course yet.")
         return
     
+    # Get all lessons for navigation
+    all_lessons = get_all_lessons_ordered(modules)
+    
+    # Initialize navigation state
+    nav_key = f"{course_id}_navigation"
+    if nav_key not in st.session_state:
+        st.session_state[nav_key] = {
+            'current_module_id': modules[0]['id'] if modules else None,
+            'current_lesson_id': modules[0]['lessons'][0]['id'] if modules and modules[0].get('lessons') else None
+        }
+    
     # Sidebar for navigation
     with st.sidebar:
         st.subheader(f"{course['title']} Navigation")
         
+        # Find current module
+        current_module = None
+        for module in modules:
+            if module['id'] == st.session_state[nav_key]['current_module_id']:
+                current_module = module
+                break
+        
+        if not current_module:
+            current_module = modules[0]
+            st.session_state[nav_key]['current_module_id'] = current_module['id']
+        
+        # Module selection
+        module_index = next((i for i, m in enumerate(modules) if m['id'] == current_module['id']), 0)
         selected_module = st.selectbox(
             "Select Module",
             options=modules,
+            index=module_index,
             format_func=lambda x: x['title'],
             key=f"{course_id}_module_select"
         )
         
+        # Update navigation state when module changes
+        if selected_module['id'] != st.session_state[nav_key]['current_module_id']:
+            st.session_state[nav_key]['current_module_id'] = selected_module['id']
+            if selected_module.get('lessons'):
+                st.session_state[nav_key]['current_lesson_id'] = selected_module['lessons'][0]['id']
+        
+        # Lesson selection
         if selected_module and selected_module.get('lessons'):
+            current_lesson = None
+            for lesson in selected_module['lessons']:
+                if lesson['id'] == st.session_state[nav_key]['current_lesson_id']:
+                    current_lesson = lesson
+                    break
+            
+            if not current_lesson:
+                current_lesson = selected_module['lessons'][0]
+                st.session_state[nav_key]['current_lesson_id'] = current_lesson['id']
+            
+            lesson_index = next((i for i, l in enumerate(selected_module['lessons']) if l['id'] == current_lesson['id']), 0)
             selected_lesson = st.selectbox(
                 "Select Lesson",
                 options=selected_module['lessons'],
+                index=lesson_index,
                 format_func=lambda x: x['title'],
                 key=f"{course_id}_lesson_select"
             )
+            
+            # Update navigation state when lesson changes
+            if selected_lesson['id'] != st.session_state[nav_key]['current_lesson_id']:
+                st.session_state[nav_key]['current_lesson_id'] = selected_lesson['id']
         else:
             selected_lesson = None
     
     # Main content area
     if selected_lesson:
-        show_lesson_content(course_id, selected_module, selected_lesson)
+        show_lesson_content(course_id, selected_module, selected_lesson, all_lessons)
     else:
         show_course_overview(course_id, course, modules)
 
@@ -126,7 +209,7 @@ def show_course_overview(course_id, course, modules):
                 'rating': rating
             })
 
-def show_lesson_content(course_id, module, lesson):
+def show_lesson_content(course_id, module, lesson, all_lessons):
     """Display individual lesson content"""
     
     st.subheader(f"📖 {lesson['title']}")
@@ -215,10 +298,19 @@ def show_lesson_content(course_id, module, lesson):
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     
+    # Get navigation information
+    prev_lesson, next_lesson = get_navigation_info(all_lessons, module['id'], lesson['id'])
+    nav_key = f"{course_id}_navigation"
+    
     with col1:
-        if st.button("⬅️ Previous Lesson", key=f"prev_lesson_{course_id}_{module['id']}_{lesson['id']}"):
-            # Logic to navigate to previous lesson
-            st.info("Previous lesson navigation would be implemented here")
+        if prev_lesson:
+            if st.button("⬅️ Previous Lesson", key=f"prev_lesson_{course_id}_{module['id']}_{lesson['id']}"):
+                # Navigate to previous lesson
+                st.session_state[nav_key]['current_module_id'] = prev_lesson['module_id']
+                st.session_state[nav_key]['current_lesson_id'] = prev_lesson['lesson_id']
+                st.rerun()
+        else:
+            st.button("⬅️ Previous Lesson", disabled=True, key=f"prev_lesson_disabled_{course_id}_{module['id']}_{lesson['id']}")
     
     with col2:
         if st.button("✅ Mark as Completed", use_container_width=True, key=f"complete_lesson_{course_id}_{module['id']}_{lesson['id']}"):
@@ -232,12 +324,28 @@ def show_lesson_content(course_id, module, lesson):
             from utils.auth import update_user_progress
             update_user_progress('lessons_completed')
             
-            st.success("Lesson marked as completed! 🎉")
+            st.success("Lesson marked as completed!")
+            
+            # Auto-advance to next lesson if available
+            if next_lesson:
+                st.session_state[nav_key]['current_module_id'] = next_lesson['module_id']
+                st.session_state[nav_key]['current_lesson_id'] = next_lesson['lesson_id']
+                st.rerun()
     
     with col3:
-        if st.button("Next Lesson ➡️", key=f"next_lesson_{course_id}_{module['id']}_{lesson['id']}"):
-            # Logic to navigate to next lesson
-            st.info("Next lesson navigation would be implemented here")
+        if next_lesson:
+            if st.button("Next Lesson ➡️", key=f"next_lesson_{course_id}_{module['id']}_{lesson['id']}"):
+                # Navigate to next lesson
+                st.session_state[nav_key]['current_module_id'] = next_lesson['module_id']
+                st.session_state[nav_key]['current_lesson_id'] = next_lesson['lesson_id']
+                st.rerun()
+        else:
+            st.button("Next Lesson ➡️", disabled=True, key=f"next_lesson_disabled_{course_id}_{module['id']}_{lesson['id']}")
+            
+    # Show navigation context
+    current_index = find_lesson_index(all_lessons, module['id'], lesson['id'])
+    if current_index >= 0:
+        st.caption(f"Lesson {current_index + 1} of {len(all_lessons)}")
 
 def show_ai_feedback(feedback):
     """Display AI code analysis feedback"""
