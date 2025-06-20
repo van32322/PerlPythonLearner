@@ -42,17 +42,27 @@ def apply_mitsuri_theme():
         }}
         
         .main .block-container {{
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             border-radius: 15px;
             padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }}
         
         h1, h2, h3 {{
-            color: #d63384 !important;
-            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            color: #8b0049 !important;
+            text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.9);
+            font-weight: bold;
+        }}
+        
+        p, span, div {{
+            color: #333333 !important;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }}
+        
+        .stMarkdown {{
+            color: #333333 !important;
         }}
         
         .stButton > button {{
@@ -86,20 +96,60 @@ def apply_mitsuri_theme():
         }}
         
         [data-testid="stSidebar"] {{
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid rgba(255, 182, 193, 0.3);
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid rgba(255, 182, 193, 0.4);
+        }}
+        
+        [data-testid="stSidebar"] * {{
+            color: #333333 !important;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }}
         
         .stTextInput input, .stTextArea textarea {{
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid rgba(255, 182, 193, 0.3);
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid rgba(255, 182, 193, 0.5);
             border-radius: 10px;
+            color: #333333 !important;
         }}
         
         .stSelectbox > div > div {{
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 10px;
+            color: #333333 !important;
+        }}
+        
+        .stTabs [data-baseweb="tab"] {{
+            color: #8b0049 !important;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }}
+        
+        .stAlert {{
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #333333 !important;
+            border-radius: 10px;
+        }}
+        
+        label {{
+            color: #8b0049 !important;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }}
+        
+        .stMetric {{
             background: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
+            padding: 1rem;
+        }}
+        
+        .stMetric label {{
+            color: #8b0049 !important;
+        }}
+        
+        .stMetric [data-testid="metric-value"] {{
+            color: #333333 !important;
+            font-weight: bold;
         }}
         </style>
         """, unsafe_allow_html=True)
