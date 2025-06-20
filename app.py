@@ -12,69 +12,119 @@ st.set_page_config(
 )
 
 def apply_mitsuri_theme():
-    """Apply Mitsuri-themed background with SVG pattern"""
-    st.markdown("""
-    <style>
-    .stApp {
-        background: 
-            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="cherry" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="2" fill="%23ff9ebc" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="%23ffccf2"/><rect width="100" height="100" fill="url(%23cherry)"/></svg>'),
-            linear-gradient(135deg, #ffb3d9 0%, #ff80cc 25%, #ffccf2 50%, #e6f3ff 75%, #ccebff 100%);
-        background-attachment: fixed;
-        background-size: 200px 200px, cover;
-    }
+    """Apply Mitsuri background image theme"""
+    # Convert image to base64 for embedding
+    import base64
     
-    .main .block-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(255, 182, 193, 0.3);
-        backdrop-filter: blur(10px);
-    }
-    
-    h1, h2, h3 {
-        color: #d63384 !important;
-        text-shadow: 1px 1px 3px rgba(255, 182, 193, 0.5);
-    }
-    
-    .stButton > button {
-        background: linear-gradient(45deg, #ff6b9d, #ff8fab);
-        color: white;
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        background: linear-gradient(45deg, #ff8fab, #ffb3d9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
-    }
-    
-    .feature-card {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 1.5rem;
-        border-radius: 15px;
-        border-left: 4px solid #ff6b9d;
-        margin: 1rem 0;
-        box-shadow: 0 4px 15px rgba(255, 182, 193, 0.2);
-        backdrop-filter: blur(5px);
-    }
-    
-    .feature-card h4 {
-        color: #d63384;
-        margin-bottom: 0.5rem;
-    }
-    
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, 
-            rgba(255, 179, 217, 0.9) 0%,
-            rgba(255, 204, 242, 0.9) 100%
-        );
-        backdrop-filter: blur(10px);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    try:
+        with open("mitsuri.jpg", "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+        
+        st.markdown(f"""
+        <style>
+        .stApp {{
+            background-image: url(data:image/jpeg;base64,{encoded_string});
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        
+        .stApp::before {{
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: -1;
+        }}
+        
+        .main .block-container {{
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }}
+        
+        h1, h2, h3 {{
+            color: #d63384 !important;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }}
+        
+        .stButton > button {{
+            background: linear-gradient(45deg, #ff6b9d, #ff8fab);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            transition: all 0.3s ease;
+        }}
+        
+        .stButton > button:hover {{
+            background: linear-gradient(45deg, #ff8fab, #ffb3d9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }}
+        
+        .feature-card {{
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #ff6b9d;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }}
+        
+        .feature-card h4 {{
+            color: #d63384;
+            margin-bottom: 0.5rem;
+        }}
+        
+        [data-testid="stSidebar"] {{
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 182, 193, 0.3);
+        }}
+        
+        .stTextInput input, .stTextArea textarea {{
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+        }}
+        
+        .stSelectbox > div > div {{
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+        
+    except Exception as e:
+        # Fallback to gradient background if image fails to load
+        st.markdown("""
+        <style>
+        .stApp {
+            background: linear-gradient(135deg, #ffb3d9, #ff80cc, #ffccf2);
+            background-attachment: fixed;
+        }
+        
+        .main .block-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(255, 182, 193, 0.3);
+        }
+        
+        h1, h2, h3 {
+            color: #d63384 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
 # Initialize database and session
 initialize_database()
