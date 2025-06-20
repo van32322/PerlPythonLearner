@@ -254,6 +254,23 @@ def show_quiz_interface():
 def show_quiz_results():
     """Display quiz results and analysis"""
     
+    # Add CSS to fix layout issues
+    st.markdown("""
+    <style>
+    .main .block-container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .stColumn {
+        overflow: visible !important;
+    }
+    .element-container {
+        width: 100% !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     quiz = st.session_state.current_quiz
     questions = quiz['questions']
     user_answers = quiz['answers']
@@ -272,18 +289,13 @@ def show_quiz_results():
     # Clear any existing layout issues
     st.empty()
     
-    # Display results header - centered layout
+    # Display results header - full width layout
     st.balloons()
-    
-    # Center the main content
-    _, center_col, _ = st.columns([1, 3, 1])
-    with center_col:
-        st.title("🎉 Quiz Complete!")
-    
+    st.title("🎉 Quiz Complete!")
     st.divider()
     
-    # Score display in balanced columns
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+    # Score display in properly sized columns with spacing
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.metric("Score", f"{correct_count}/{total_questions}")
@@ -352,24 +364,22 @@ def show_quiz_results():
         'questions': total_questions
     })
     
-    # Action buttons - centered layout
-    _, button_col, _ = st.columns([1, 2, 1])
-    with button_col:
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            if st.button("🔄 Take Another Quiz", use_container_width=True, key="take_another_quiz"):
-                # Clear current quiz
-                del st.session_state.current_quiz
-                st.rerun()
-        
-        with col2:
-            if st.button("📚 Review Topics", use_container_width=True, key="review_topics"):
-                st.switch_page("pages/2_📚_Courses.py")
-        
-        with col3:
-            if st.button("🤖 Ask AI for Help", use_container_width=True, key="ask_ai_help"):
-                st.switch_page("pages/4_🤖_AI_Chatbot.py")
+    # Action buttons - full width layout
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🔄 Take Another Quiz", use_container_width=True, key="take_another_quiz"):
+            # Clear current quiz
+            del st.session_state.current_quiz
+            st.rerun()
+    
+    with col2:
+        if st.button("📚 Review Topics", use_container_width=True, key="review_topics"):
+            st.switch_page("pages/2_📚_Courses.py")
+    
+    with col3:
+        if st.button("🤖 Ask AI for Help", use_container_width=True, key="ask_ai_help"):
+            st.switch_page("pages/4_🤖_AI_Chatbot.py")
     
     st.divider()
     
