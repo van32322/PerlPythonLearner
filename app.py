@@ -168,14 +168,30 @@ def register_form():
                 st.warning("Please fill in all fields")
 
 def authenticate_user(username, password):
-    """Simple authentication function"""
-    # In production, use proper password hashing and database lookup
+    """Authentication function using PostgreSQL database"""
+    from utils.auth import authenticate_user_db
+    
+    # Try database authentication first
+    user_data = authenticate_user_db(username, password)
+    if user_data:
+        return user_data
+    
+    # Fallback to session-based authentication
     users_db = st.session_state.get('users_db', {})
     user = users_db.get(username)
-    return user and user.get('password') == password
+    if user and user.get('password') == password:
+        return user
+    return None
 
 def register_user(username, email, password, role):
-    """Simple user registration function"""
+    """User registration function using PostgreSQL database"""
+    from utils.auth import create_user
+    
+    # Try database registration first
+    if create_user(username, email, password, role):
+        return True
+    
+    # Fallback to session-based registration
     if 'users_db' not in st.session_state:
         st.session_state.users_db = {}
     
@@ -184,7 +200,7 @@ def register_user(username, email, password, role):
     
     st.session_state.users_db[username] = {
         'email': email,
-        'password': password,  # In production, hash this
+        'password': password,
         'role': role,
         'created_at': pd.Timestamp.now(),
         'profile': {

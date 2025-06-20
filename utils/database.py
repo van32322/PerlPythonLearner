@@ -2,31 +2,54 @@ import streamlit as st
 import pandas as pd
 from typing import Dict, List, Optional
 import json
-from datetime import datetime
+import hashlib
+from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
+from utils.db_schema import (
+    User, Course, UserProgress, QuizResult, CodeSubmission, 
+    ChatSession, UserActivity, SystemSettings, SessionLocal, create_tables
+)
 
 def initialize_database():
-    """Initialize the session-based database"""
-    if 'db_initialized' not in st.session_state:
-        st.session_state.db_initialized = True
+    """Initialize the PostgreSQL database"""
+    try:
+        # Create all database tables
+        create_tables()
         
-        # User progress tracking
+        # Initialize session state for temporary data
+        if 'db_initialized' not in st.session_state:
+            st.session_state.db_initialized = True
+            
+    except Exception as e:
+        st.error(f"Database initialization failed: {str(e)}")
+        # Fallback to session-based storage
         if 'user_activities' not in st.session_state:
             st.session_state.user_activities = []
-        
-        # Quiz results
         if 'quiz_results' not in st.session_state:
             st.session_state.quiz_results = []
-        
-        # Code submissions
         if 'code_submissions' not in st.session_state:
             st.session_state.code_submissions = []
-        
-        # Course evaluations
-        if 'course_evaluations' not in st.session_state:
-            st.session_state.course_evaluations = []
 
 def log_user_activity(activity_type: str, details: Dict):
     """Log user activity for progress tracking"""
+    try:
+        if 'user_data' in st.session_state and st.session_state.user_data:
+            user_id = st.session_state.user_data.get('id')
+            if user_id:
+                with SessionLocal() as db:
+                    activity = UserActivity(
+                        user_id=user_id,
+                        activity_type=activity_type,
+                        activity_data=details,
+                        timestamp=datetime.utcnow()
+                    )
+                    db.add(activity)
+                    db.commit()
+                    return
+    except Exception as e:
+        pass  # Continue to fallback
+    
+    # Fallback to session storage
     if 'user_activities' not in st.session_state:
         st.session_state.user_activities = []
     
@@ -41,6 +64,30 @@ def log_user_activity(activity_type: str, details: Dict):
 
 def save_quiz_result(quiz_data: Dict):
     """Save quiz result to database"""
+    try:
+        if 'user_data' in st.session_state and st.session_state.user_data:
+            user_id = st.session_state.user_data.get('id')
+            if user_id:
+                with SessionLocal() as db:
+                    quiz_result = QuizResult(
+                        user_id=user_id,
+                        quiz_topic=quiz_data.get('topic', ''),
+                        language=quiz_data.get('language', ''),
+                        difficulty=quiz_data.get('difficulty', 'beginner'),
+                        total_questions=quiz_data.get('total_questions', 0),
+                        correct_answers=quiz_data.get('correct_answers', 0),
+                        score_percentage=quiz_data.get('score', 0),
+                        time_taken_seconds=quiz_data.get('time_taken', 0),
+                        questions_data=quiz_data.get('questions', {}),
+                        completed_at=datetime.utcnow()
+                    )
+                    db.add(quiz_result)
+                    db.commit()
+                    return
+    except Exception as e:
+        pass  # Continue to fallback
+    
+    # Fallback to session storage
     if 'quiz_results' not in st.session_state:
         st.session_state.quiz_results = []
     
