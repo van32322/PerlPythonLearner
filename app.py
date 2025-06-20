@@ -3,185 +3,17 @@ import pandas as pd
 from utils.auth import initialize_session, check_authentication
 from utils.database import initialize_database
 
-# Configure the page with Mitsuri theme
+# Configure the page
 st.set_page_config(
-    page_title="🌸 Mitsuri's Coding Dojo - PERL & Python Platform",
-    page_icon="🌸",
+    page_title="PERL & Python Learning Platform",
+    page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-def apply_mitsuri_theme():
-    """Apply Mitsuri background image theme"""
-    # Convert image to base64 for embedding
-    import base64
-    
-    try:
-        with open("mitsuri.jpg", "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode()
-        
-        st.markdown(f"""
-        <style>
-        .stApp {{
-            background-image: url(data:image/jpeg;base64,{encoded_string});
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-        
-        .stApp::before {{
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: -1;
-        }}
-        
-        .main .block-container {{
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }}
-        
-        h1, h2, h3 {{
-            color: #8b0049 !important;
-            text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.9);
-            font-weight: bold;
-        }}
-        
-        p, span, div {{
-            color: #333333 !important;
-            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
-        }}
-        
-        .stMarkdown {{
-            color: #333333 !important;
-        }}
-        
-        .stButton > button {{
-            background: linear-gradient(45deg, #ff6b9d, #ff8fab);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
-            transition: all 0.3s ease;
-        }}
-        
-        .stButton > button:hover {{
-            background: linear-gradient(45deg, #ff8fab, #ffb3d9);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
-        }}
-        
-        .feature-card {{
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1.5rem;
-            border-radius: 15px;
-            border-left: 4px solid #ff6b9d;
-            margin: 1rem 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-        }}
-        
-        .feature-card h4 {{
-            color: #d63384;
-            margin-bottom: 0.5rem;
-        }}
-        
-        [data-testid="stSidebar"] {{
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(20px);
-            border-right: 2px solid rgba(255, 182, 193, 0.4);
-        }}
-        
-        [data-testid="stSidebar"] * {{
-            color: #333333 !important;
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-        }}
-        
-        .stTextInput input, .stTextArea textarea {{
-            background: rgba(255, 255, 255, 0.95) !important;
-            border: 2px solid rgba(255, 182, 193, 0.5);
-            border-radius: 10px;
-            color: #333333 !important;
-        }}
-        
-        .stSelectbox > div > div {{
-            background: rgba(255, 255, 255, 0.95) !important;
-            border-radius: 10px;
-            color: #333333 !important;
-        }}
-        
-        .stTabs [data-baseweb="tab"] {{
-            color: #8b0049 !important;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-        }}
-        
-        .stAlert {{
-            background: rgba(255, 255, 255, 0.95) !important;
-            color: #333333 !important;
-            border-radius: 10px;
-        }}
-        
-        label {{
-            color: #8b0049 !important;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-        }}
-        
-        .stMetric {{
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 1rem;
-        }}
-        
-        .stMetric label {{
-            color: #8b0049 !important;
-        }}
-        
-        .stMetric [data-testid="metric-value"] {{
-            color: #333333 !important;
-            font-weight: bold;
-        }}
-        </style>
-        """, unsafe_allow_html=True)
-        
-    except Exception as e:
-        # Fallback to gradient background if image fails to load
-        st.markdown("""
-        <style>
-        .stApp {
-            background: linear-gradient(135deg, #ffb3d9, #ff80cc, #ffccf2);
-            background-attachment: fixed;
-        }
-        
-        .main .block-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(255, 182, 193, 0.3);
-        }
-        
-        h1, h2, h3 {
-            color: #d63384 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
 # Initialize database and session
 initialize_database()
 initialize_session()
-
-# Apply Mitsuri theme
-apply_mitsuri_theme()
 
 # Custom CSS for better styling (minimal, following guidelines)
 st.markdown("""
@@ -204,20 +36,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def main():
-    # Mitsuri-themed Header
-    st.markdown("""
-    <div style='text-align: center; padding: 2rem 0;'>
-        <h1 style='color: #d63384; font-size: 3rem; text-shadow: 2px 2px 4px rgba(255, 182, 193, 0.5);'>
-            🌸 PERL & Python Learning Platform 🌸
-        </h1>
-        <h3 style='color: #ff6b9d; font-style: italic; text-shadow: 1px 1px 2px rgba(255, 182, 193, 0.3);'>
-            Master programming with the strength and passion of Mitsuri Kanroji!
-        </h3>
-        <p style='color: #8b0049; font-size: 1.2rem; margin-top: 1rem;'>
-            🗡️ Comprehensive Learning • 🤖 AI-Powered Support • 💪 Practice with Determination
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Header
+    st.markdown('<div class="main-header">', unsafe_allow_html=True)
+    st.title("🎓 PERL & Python Learning Platform")
+    st.markdown("### Comprehensive Learning with AI-Powered Support")
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Check authentication
     if not check_authentication():
