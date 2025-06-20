@@ -216,12 +216,12 @@ def show_lesson_content(course_id, module, lesson):
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col1:
-        if st.button("⬅️ Previous Lesson"):
+        if st.button("⬅️ Previous Lesson", key=f"prev_lesson_{course_id}_{module['id']}_{lesson['id']}"):
             # Logic to navigate to previous lesson
             st.info("Previous lesson navigation would be implemented here")
     
     with col2:
-        if st.button("✅ Mark as Completed", use_container_width=True):
+        if st.button("✅ Mark as Completed", use_container_width=True, key=f"complete_lesson_{course_id}_{module['id']}_{lesson['id']}"):
             log_user_activity('lesson_completed', {
                 'course_id': course_id,
                 'module_id': module['id'],
@@ -235,7 +235,7 @@ def show_lesson_content(course_id, module, lesson):
             st.success("Lesson marked as completed! 🎉")
     
     with col3:
-        if st.button("Next Lesson ➡️"):
+        if st.button("Next Lesson ➡️", key=f"next_lesson_{course_id}_{module['id']}_{lesson['id']}"):
             # Logic to navigate to next lesson
             st.info("Next lesson navigation would be implemented here")
 
