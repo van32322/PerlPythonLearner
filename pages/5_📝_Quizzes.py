@@ -269,12 +269,21 @@ def show_quiz_results():
     
     score_percentage = (correct_count / total_questions) * 100
     
-    # Display results header
-    st.balloons()
-    st.title("🎉 Quiz Complete!")
+    # Clear any existing layout issues
+    st.empty()
     
-    # Score display
-    col1, col2, col3, col4 = st.columns(4)
+    # Display results header - centered layout
+    st.balloons()
+    
+    # Center the main content
+    _, center_col, _ = st.columns([1, 3, 1])
+    with center_col:
+        st.title("🎉 Quiz Complete!")
+    
+    st.divider()
+    
+    # Score display in balanced columns
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     
     with col1:
         st.metric("Score", f"{correct_count}/{total_questions}")
@@ -289,32 +298,36 @@ def show_quiz_results():
     with col4:
         # Performance indicator
         if score_percentage >= 80:
-            st.success("Excellent! 🌟")
+            st.success("Excellent!")
         elif score_percentage >= 60:
-            st.info("Good Job! 👍")
+            st.info("Good Job!")
         else:
-            st.warning("Keep Practicing! 💪")
+            st.warning("Keep Practicing!")
     
-    # Detailed results
+    st.divider()
+    
+    # Detailed results section
     st.subheader("📊 Detailed Results")
     
-    for i, question in enumerate(questions):
-        with st.expander(f"Question {i+1}: {'✅' if i < len(user_answers) and user_answers[i] == question['correct_answer'] else '❌'}"):
-            st.markdown(f"**Question:** {question['question']}")
-            
-            # Show all options with indicators
-            for option in question['options']:
-                option_letter = option[0]
-                if option_letter == question['correct_answer']:
-                    st.success(f"✅ {option} (Correct Answer)")
-                elif i < len(user_answers) and option_letter == user_answers[i]:
-                    st.error(f"❌ {option} (Your Answer)")
-                else:
-                    st.write(option)
-            
-            # Show explanation
-            if question.get('explanation'):
-                st.info(f"**Explanation:** {question['explanation']}")
+    # Use container to ensure proper layout
+    with st.container():
+        for i, question in enumerate(questions):
+            with st.expander(f"Question {i+1}: {'✅' if i < len(user_answers) and user_answers[i] == question['correct_answer'] else '❌'}"):
+                st.markdown(f"**Question:** {question['question']}")
+                
+                # Show all options with indicators in a clean layout
+                for option in question['options']:
+                    option_letter = option[0]
+                    if option_letter == question['correct_answer']:
+                        st.success(f"✅ {option} (Correct Answer)")
+                    elif i < len(user_answers) and option_letter == user_answers[i]:
+                        st.error(f"❌ {option} (Your Answer)")
+                    else:
+                        st.write(option)
+                
+                # Show explanation
+                if question.get('explanation'):
+                    st.info(f"**Explanation:** {question['explanation']}")
     
     # Save results to database
     quiz_data = {
@@ -339,22 +352,26 @@ def show_quiz_results():
         'questions': total_questions
     })
     
-    # Action buttons
-    col1, col2, col3 = st.columns(3)
+    # Action buttons - centered layout
+    _, button_col, _ = st.columns([1, 2, 1])
+    with button_col:
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("🔄 Take Another Quiz", use_container_width=True, key="take_another_quiz"):
+                # Clear current quiz
+                del st.session_state.current_quiz
+                st.rerun()
+        
+        with col2:
+            if st.button("📚 Review Topics", use_container_width=True, key="review_topics"):
+                st.switch_page("pages/2_📚_Courses.py")
+        
+        with col3:
+            if st.button("🤖 Ask AI for Help", use_container_width=True, key="ask_ai_help"):
+                st.switch_page("pages/4_🤖_AI_Chatbot.py")
     
-    with col1:
-        if st.button("🔄 Take Another Quiz", use_container_width=True):
-            # Clear current quiz
-            del st.session_state.current_quiz
-            st.rerun()
-    
-    with col2:
-        if st.button("📚 Review Topics", use_container_width=True):
-            st.switch_page("pages/2_📚_Courses.py")
-    
-    with col3:
-        if st.button("🤖 Ask AI for Help", use_container_width=True):
-            st.switch_page("pages/4_🤖_AI_Chatbot.py")
+    st.divider()
     
     # Learning recommendations based on performance
     if score_percentage < 70:
@@ -366,11 +383,14 @@ def show_quiz_results():
                 current_topic=quiz['topic']
             )
             
-            for rec in recommendations[:3]:
-                st.markdown(f"• {rec}")
+            if recommendations:
+                for rec in recommendations[:3]:
+                    st.markdown(f"• {rec}")
+            else:
+                st.info("Practice more questions on this topic to improve your understanding.")
                 
         except Exception as e:
-            st.warning("Unable to generate study recommendations at this time.")
+            st.info("Focus on reviewing the questions you missed and study the explanations provided.")
 
 def show_recent_quiz_results():
     """Show recent quiz results"""
