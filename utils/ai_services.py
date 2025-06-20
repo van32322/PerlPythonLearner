@@ -13,6 +13,65 @@ class AILearningAssistant:
     
     def __init__(self):
         self.client = client
+        self.fallback_responses = {
+            'python': {
+                'help': "Python is a versatile programming language. For help with specific topics, try our course materials or search for documentation online.",
+                'syntax': "Python uses indentation to define code blocks. Common syntax includes: variables (x = 5), functions (def my_func():), and loops (for i in range(10):).",
+                'error': "Common Python errors include: IndentationError (check spacing), NameError (undefined variables), and SyntaxError (check parentheses and colons).",
+            },
+            'perl': {
+                'help': "PERL is a powerful scripting language. Check our course materials for detailed explanations and examples.",
+                'syntax': "PERL variables start with $ (scalars), @ (arrays), or % (hashes). Statements end with semicolons.",
+                'error': "Common PERL errors include: syntax errors (missing semicolons), undefined variables, and file permission issues.",
+            }
+        }
+    
+    def _get_fallback_response(self, user_message: str, language: str = "python") -> str:
+        """Provide helpful fallback responses when AI service is unavailable"""
+        message_lower = user_message.lower()
+        
+        # Detect question type and provide relevant response
+        if any(word in message_lower for word in ['syntax', 'how to', 'write']):
+            return self.fallback_responses[language]['syntax']
+        elif any(word in message_lower for word in ['error', 'bug', 'problem', 'fix']):
+            return self.fallback_responses[language]['error']
+        else:
+            return f"{self.fallback_responses[language]['help']} Your question: '{user_message}' - Please check our course materials or try again when AI services are restored."
+    
+    def _get_fallback_analysis(self, code: str, language: str = "python") -> Dict:
+        """Provide basic code analysis when AI service is unavailable"""
+        analysis = {
+            'overall_score': 7,
+            'suggestions': [],
+            'strengths': [],
+            'areas_for_improvement': [],
+            'complexity_score': 5
+        }
+        
+        # Basic static analysis
+        lines = code.strip().split('\n')
+        non_empty_lines = [line for line in lines if line.strip()]
+        
+        if language == "python":
+            if any('def ' in line for line in non_empty_lines):
+                analysis['strengths'].append('Uses functions for code organization')
+            if any('import ' in line for line in non_empty_lines):
+                analysis['strengths'].append('Properly imports modules')
+            if len(non_empty_lines) > 20:
+                analysis['areas_for_improvement'].append('Consider breaking long code into smaller functions')
+        elif language == "perl":
+            if any('sub ' in line for line in non_empty_lines):
+                analysis['strengths'].append('Uses subroutines for code organization')
+            if any('use ' in line for line in non_empty_lines):
+                analysis['strengths'].append('Properly uses modules')
+        
+        if not analysis['strengths']:
+            analysis['strengths'].append('Code structure appears functional')
+        if not analysis['areas_for_improvement']:
+            analysis['areas_for_improvement'].append('Consider adding comments for better readability')
+            
+        analysis['suggestions'].append('AI analysis temporarily unavailable - basic analysis provided')
+        return analysis
     
     def get_chatbot_response(self, user_message: str, context: str = "", language: str = "python"):
         """Get response from AI chatbot for learning support"""
@@ -41,7 +100,9 @@ class AILearningAssistant:
             
             return response.choices[0].message.content or "No response received"
         except Exception as e:
-            return f"I apologize, but I'm having trouble connecting right now. Error: {str(e)}"
+            if "insufficient_quota" in str(e) or "429" in str(e):
+                return self._get_fallback_response(user_message, language)
+            return f"I apologize, but I'm having trouble connecting right now. Please try again later."
     
     def analyze_code(self, code: str, language: str = "python") -> Dict:
         """Analyze code and provide suggestions for improvement"""
