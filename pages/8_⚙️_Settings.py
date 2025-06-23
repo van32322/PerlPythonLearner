@@ -573,11 +573,7 @@ def show_account_settings():
                 # Log account deletion
                 log_user_activity('account_deleted', {'timestamp': datetime.now().isoformat()})
                 
-                # Delete user data
-                if user['username'] in st.session_state.users_db:
-                    del st.session_state.users_db[user['username']]
-                
-                # Clear user progress
+                # Delete user data through the proper function
                 clear_user_data()
                 
                 # Logout

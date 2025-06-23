@@ -86,21 +86,8 @@ def initialize_session():
             if not admin_user:
                 create_user('admin', 'admin@example.com', 'admin123', 'instructor')
     except:
-        # Fallback to session-based storage
-        if 'users_db' not in st.session_state:
-            st.session_state.users_db = {
-                'admin': {
-                    'email': 'admin@example.com',
-                    'password': 'admin123',
-                    'role': 'instructor',
-                    'created_at': pd.Timestamp.now(),
-                    'profile': {
-                        'bio': 'Platform Administrator',
-                        'learning_goals': [],
-                        'preferred_language': 'python'
-                    }
-                }
-            }
+        # If database is not available, continue without fallback
+        pass
     
     if 'user_progress' not in st.session_state:
         st.session_state.user_progress = {

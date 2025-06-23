@@ -171,45 +171,15 @@ def authenticate_user(username, password):
     """Authentication function using PostgreSQL database"""
     from utils.auth import authenticate_user_db
     
-    # Try database authentication first
-    user_data = authenticate_user_db(username, password)
-    if user_data:
-        return user_data
-    
-    # Fallback to session-based authentication
-    users_db = st.session_state.get('users_db', {})
-    user = users_db.get(username)
-    if user and user.get('password') == password:
-        return user
-    return None
+    # Authenticate user against database
+    return authenticate_user_db(username, password)
 
 def register_user(username, email, password, role):
     """User registration function using PostgreSQL database"""
     from utils.auth import create_user
     
-    # Try database registration first
-    if create_user(username, email, password, role):
-        return True
-    
-    # Fallback to session-based registration
-    if 'users_db' not in st.session_state:
-        st.session_state.users_db = {}
-    
-    if username in st.session_state.users_db:
-        return False
-    
-    st.session_state.users_db[username] = {
-        'email': email,
-        'password': password,
-        'role': role,
-        'created_at': pd.Timestamp.now(),
-        'profile': {
-            'bio': '',
-            'learning_goals': [],
-            'preferred_language': 'python'
-        }
-    }
-    return True
+    # Register user in database
+    return create_user(username, email, password, role)
 
 if __name__ == "__main__":
     main()
