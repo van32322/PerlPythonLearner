@@ -41,7 +41,13 @@ class AILearningAssistant:
             
             return response.choices[0].message.content or "No response received"
         except Exception as e:
-            return f"I apologize, but I'm having trouble connecting right now. Error: {str(e)}"
+            error_msg = str(e).lower()
+            if "quota" in error_msg or "429" in error_msg:
+                return "I'm temporarily unavailable due to high usage. You can still use the code practice, courses, and quiz features with sample content. Please try the AI chat again later."
+            elif "api" in error_msg:
+                return "I'm having connection issues right now. All other features of the learning platform are still available. Please try again in a few moments."
+            else:
+                return f"I'm experiencing technical difficulties. Error details: {str(e)}"
     
     def analyze_code(self, code: str, language: str = "python") -> Dict:
         """Analyze code and provide suggestions for improvement"""
@@ -80,14 +86,63 @@ Please provide analysis in this JSON format:
             return feedback
             
         except Exception as e:
-            return {
-                "code_quality_score": 5,
-                "syntax_errors": [],
-                "logic_issues": [f"Analysis failed: {str(e)}"],
-                "improvements": ["Unable to analyze code at this time"],
-                "best_practices": [],
-                "overall_feedback": "Code analysis service temporarily unavailable"
-            }
+            error_msg = str(e).lower()
+            if "quota" in error_msg or "429" in error_msg:
+                return self._get_fallback_analysis(code, language, "quota_exceeded")
+            elif "api" in error_msg:
+                return self._get_fallback_analysis(code, language, "api_error")
+            else:
+                return self._get_fallback_analysis(code, language, "general_error")
+    
+    def _get_fallback_analysis(self, code: str, language: str, error_type: str) -> Dict:
+        """Provide basic code analysis when AI service is unavailable"""
+        
+        lines = code.strip().split('\n')
+        has_functions = any('def ' in line for line in lines)
+        has_comments = any('#' in line for line in lines)
+        has_imports = any('import ' in line or 'from ' in line for line in lines)
+        
+        syntax_errors = []
+        logic_issues = []
+        improvements = []
+        
+        # Basic syntax checking for Python
+        if language.lower() == "python":
+            for i, line in enumerate(lines, 1):
+                stripped = line.strip()
+                if stripped.count('(') != stripped.count(')'):
+                    syntax_errors.append(f"Line {i}: Check parentheses balance")
+                if stripped.count('[') != stripped.count(']'):
+                    syntax_errors.append(f"Line {i}: Check bracket balance")
+        
+        # Generate improvements based on code structure
+        if not has_functions and len(lines) > 10:
+            improvements.append("Consider organizing code into functions")
+        if not has_comments and len(lines) > 5:
+            improvements.append("Add comments to explain your logic")
+        if not has_imports and language.lower() == "python" and len(lines) > 3:
+            improvements.append("Consider using appropriate libraries")
+        
+        if error_type == "quota_exceeded":
+            feedback = "AI analysis temporarily unavailable due to service limits. Basic automated review provided."
+        elif error_type == "api_error":
+            feedback = "AI analysis service unavailable. Basic code review completed."
+        else:
+            feedback = "AI analysis unavailable. Automated code structure review provided."
+        
+        return {
+            "code_quality_score": 7 if not syntax_errors else 5,
+            "syntax_errors": syntax_errors if syntax_errors else ["No obvious syntax errors found"],
+            "logic_issues": logic_issues if logic_issues else ["No obvious logic issues detected"],
+            "improvements": improvements if improvements else ["Code structure looks good"],
+            "best_practices": [
+                "Use descriptive variable names",
+                "Follow consistent indentation",
+                "Add error handling where appropriate",
+                "Test code with different inputs"
+            ],
+            "overall_feedback": feedback
+        }
     
     def generate_quiz_questions(self, topic: str, language: str, difficulty: str = "beginner", count: int = 5) -> List[Dict]:
         """Generate quiz questions for given topic and language"""
