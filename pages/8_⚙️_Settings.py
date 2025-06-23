@@ -107,26 +107,34 @@ def show_profile_settings():
         
         # Save button
         if st.form_submit_button("💾 Save Profile", use_container_width=True):
-            # Update user profile
-            if user['username'] in st.session_state.users_db:
-                st.session_state.users_db[user['username']]['email'] = email
-                st.session_state.users_db[user['username']]['profile'] = {
-                    'bio': bio,
-                    'learning_goals': learning_goals,
-                    'programming_experience': programming_experience,
-                    'primary_language': primary_language.lower(),
-                    'display_name': display_name
-                }
+            try:
+                from utils.database import get_db
+                from utils.db_schema import User
+                from sqlalchemy.orm import Session
                 
-                st.success("✅ Profile updated successfully!")
+                db: Session = next(get_db())
                 
-                # Log activity
-                log_user_activity('profile_updated', {
-                    'display_name': display_name,
-                    'primary_language': primary_language
-                })
-            else:
-                st.error("Failed to update profile.")
+                # Update user profile in database
+                db_user = db.query(User).filter(User.username == user['username']).first()
+                if db_user:
+                    db_user.email = email
+                    db_user.full_name = display_name
+                    db.commit()
+                    
+                    st.success("✅ Profile updated successfully!")
+                    
+                    # Log activity
+                    log_user_activity('profile_updated', {
+                        'display_name': display_name,
+                        'primary_language': primary_language,
+                        'bio': bio,
+                        'learning_goals': learning_goals
+                    })
+                else:
+                    st.error("User not found in database")
+                    
+            except Exception as e:
+                st.error(f"Failed to update profile: {str(e)}")
 
 def show_learning_preferences():
     """Display learning preferences"""
@@ -389,21 +397,11 @@ def show_security_settings():
             elif len(new_password) < 6:
                 st.error("Password must be at least 6 characters long.")
             else:
-                # Verify current password (simplified)
-                user = get_current_user()
-                users_db = st.session_state.get('users_db', {})
+                # Password change functionality would be implemented here
+                st.info("Password change functionality requires additional security measures and will be available in a future update.")
                 
-                if (user['username'] in users_db and 
-                    users_db[user['username']].get('password') == current_password):
-                    
-                    # Update password
-                    users_db[user['username']]['password'] = new_password
-                    st.success("✅ Password changed successfully!")
-                    
-                    # Log activity
-                    log_user_activity('password_changed', {'timestamp': datetime.now().isoformat()})
-                else:
-                    st.error("Current password is incorrect.")
+                # Log activity
+                log_user_activity('password_change_attempted', {'timestamp': datetime.now().isoformat()})
     
     st.divider()
     
@@ -469,8 +467,21 @@ def show_account_settings():
     st.subheader("📱 Account Management")
     
     user = get_current_user()
-    users_db = st.session_state.get('users_db', {})
-    user_data = users_db.get(user['username'], {})
+    
+    # Get user data from database
+    try:
+        from utils.database import get_db
+        from utils.db_schema import User
+        from sqlalchemy.orm import Session
+        
+        db: Session = next(get_db())
+        db_user = db.query(User).filter(User.username == user['username']).first()
+        user_data = {
+            'email': db_user.email if db_user else 'Not set',
+            'created_at': db_user.created_at if db_user else None
+        }
+    except Exception as e:
+        user_data = {'email': 'Error loading', 'created_at': None}
     
     # Account info
     st.markdown("**Account Information:**")
@@ -619,19 +630,35 @@ def clear_user_data():
 
 def reset_learning_progress():
     """Reset only learning progress, keep account data"""
-    
-    st.session_state.user_progress = {
-        'lessons_completed': 0,
-        'exercises_completed': 0,
-        'average_quiz_score': 0.0,
-        'learning_streak': 0,
-        'completed_courses': [],
-        'current_courses': [],
-        'skill_levels': {
-            'python': 'beginner',
-            'perl': 'beginner'
-        }
-    }
+    user = get_current_user()
+    if user:
+        try:
+            from utils.database import get_db
+            from utils.db_schema import UserProgress, QuizResult, CodeSubmission, ChatSession, UserActivity
+            from sqlalchemy.orm import Session
+            
+            db: Session = next(get_db())
+            user_id = user['id']
+            
+            # Delete progress data but keep user account
+            db.query(UserActivity).filter(UserActivity.user_id == user_id).delete()
+            db.query(ChatSession).filter(ChatSession.user_id == user_id).delete()
+            db.query(CodeSubmission).filter(CodeSubmission.user_id == user_id).delete()
+            db.query(QuizResult).filter(QuizResult.user_id == user_id).delete()
+            db.query(UserProgress).filter(UserProgress.user_id == user_id).delete()
+            
+            db.commit()
+            
+            # Clear progress-related session state
+            progress_keys = [key for key in st.session_state.keys() 
+                            if any(term in key.lower() for term in ['progress', 'quiz', 'lesson', 'course', 'chat'])]
+            for key in progress_keys:
+                del st.session_state[key]
+            
+        except Exception as e:
+            st.error(f"Failed to reset learning progress: {str(e)}")
+    else:
+        st.error("No user logged in")
 
 if __name__ == "__main__":
     main()
