@@ -7,9 +7,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 
-# Database configuration
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://localhost/lms_db')
-engine = create_engine(DATABASE_URL)
+# Database configuration - Using SQLite instead of MySQL
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///./learning_platform.db')
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
